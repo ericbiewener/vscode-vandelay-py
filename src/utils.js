@@ -54,34 +54,11 @@ function isPathPackage(plugin, importPath) {
   })
 }
 
-function getLineImports(lines, lineIndex) {
-  let importText
-  const line = lines[lineIndex]
-
-  const hasParens = line.includes(' import (') && !line.endsWith(')')
-  if (!hasParens && !line.endsWith('\\')) {
-    importText = line
-  }
-  else {
-    for (let i = lineIndex; i < lines.length; i++) {
-      if ((hasParens && line.endsWith(')')) || (!hasParens && !line.endsWith('\\'))) {
-        importText = lines.slice(lineIndex, i + 1).join('')
-        break
-      }
-    }
-  }
-
-  if (!importText) return
-  
-  importText = strAfter(importText, 'import ').replace(/[()\\ ]/g, '') // Remove parentheses, slashes, spaces
-  return importText.split(',')
-}
-
 module.exports = {
+  strAfter,
   trimPath,
   strBetween,
   parseLineImportPath,
   strUntil,
   isPathPackage,
-  getLineImports,
 }

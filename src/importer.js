@@ -3,7 +3,7 @@
 const {window, Range, Position} = require('vscode')
 const path = require('path')
 const _ = require('lodash')
-const {strBetween, trimPath, parseLineImportPath, isPathPackage, getLineImports} = require('./utils')
+const {strAfter, strBetween, trimPath, parseLineImportPath, isPathPackage} = require('./utils')
 
 function buildImportItems(plugin, exportData) {
   const {projectRoot, shouldIncludeImport} = plugin
@@ -51,24 +51,24 @@ async function insertImport(plugin, importSelection) {
   const lines = editor.document.getText().split('\n')
   
   const linePosition = getLinePosition(plugin, importPath, isExtraImport, lines)
-  return
   const lineImports = getNewLineImports(lines, exportName, linePosition)
   if (!lineImports) return
   const newLine = getNewLine(plugin, importPath, lineImports)
   
-  const {lineIndex, lineIndexModifier, multiLineStart, isFirstImportLine} = linePosition
+  const {start, lineIndexModifier, isFirstImportLine} = linePosition
+  const end = linePosition.end || start
   
   await editor.edit(builder => {
     if (!lineIndexModifier) {
-      builder.replace(new Range(multiLineStart || lineIndex, 0, lineIndex, lines[lineIndex].length), newLine)
+      builder.replace(new Range(start, 0, end, lines[end].length), newLine)
     } else if (lineIndexModifier === 1) {
-      builder.insert(new Position(lineIndex, lines[lineIndex].length), '\n' + newLine)
+      builder.insert(new Position(end, lines[end].length), '\n' + newLine)
     } else { // -1
       // If it's the first import line, then add an extra new line between it and the subsequent non-import code.
       // We only need to worry about this here, because if `isFirstImportLine` = true, the only alternative
       // `lineIndexModifier` is 1, which occurs when the file only has comments
       const extraNewLine = isFirstImportLine ? '\n' : ''
-      builder.insert(new Position(lineIndex, 0), newLine + '\n' + extraNewLine)
+      builder.insert(new Position(end, 0), newLine + '\n' + extraNewLine)
     }
   })
 }
@@ -201,99 +201,60 @@ function getLinePosition(plugin, importPath, isExtraImport, lines) {
   }
 }
 
-function getNewLineImports(lines, exportName, exportType, linePosition) {
-  const {lineIndex, multiLineStart, lineIndexModifier, isFirstImportLine} = linePosition
+function getNewLineImports(lines, exportName, linePosition) {
+  const {start, end, lineIndexModifier, isFirstImportLine} = linePosition
 
-  const lineImports = lineIndexModifier || isFirstImportLine
-    ? {named: [], types: []}
-    : getLineImports(lines, multiLineStart == null ? lineIndex : multiLineStart)
-  
-  if (exportType === ExportType.default) {
-    if (lineImports.default) return
-    lineImports.default = exportName
-  } else {
-    const arr = lineImports[exportType === ExportType.named ? 'named' : 'types']
-    if (arr.includes(exportName)) return
-    arr.push(exportName)
-  }
+  if (lineIndexModifier || isFirstImportLine) return [exportName]
 
+  const singleLine = lines.slice(start, end + 1).join(' ')
+  const lineImports = strAfter(singleLine, 'import ').replace(/[()\\ ]/g, '').split(',')
+  lineImports.push(exportName)
   return lineImports
 }
 
 function getNewLine(plugin, importPath, imports) {
-  const {padCurlyBraces, quoteType, useSemicolons, maxImportLineLength, multilineImportStyle, commaDangle} = plugin
+  const {maxImportLineLength, multilineImportParentheses: useParens} = plugin
 
-  imports.named.sort()
-  imports.types.sort()
-  const nonDefaultImports = imports.named.concat(imports.types.map(t => 'type ' + t))
+  imports.sort()
 
-  let newLineStart = 'import'
-  if (imports.default) newLineStart += ' ' + imports.default
+  const newLineStart = 'from ' + importPath + ' import '
+  const newLineEnd = imports.join(', ')
 
-  let newLineMiddle = ''
-  let newLineEnd = ''
-  if (nonDefaultImports.length) {
-    if (imports.default) newLineStart += ','
-    newLineStart += ' {'
-    if (padCurlyBraces) newLineStart += ' '
-    newLineMiddle = nonDefaultImports.join(', ')
-    if (padCurlyBraces) newLineEnd += ' '
-    newLineEnd += '}'
-  }
-
-  const quoteChar = quoteType === 'single' ? '\'' : '"'
-  newLineEnd += ' from ' + quoteChar + importPath + quoteChar
-  if (useSemicolons) newLineEnd += ';'
-
-  // Split up line if necessary
-
+  // TODO: share next two lines in shared plugin utils
   const {options} = window.activeTextEditor
   const tabChar = options.insertSpaces ? _.repeat(' ', options.tabSize) : '\t'
-  const newLineLength = newLineStart.length + newLineMiddle.length + newLineEnd.length
+  const newLineLength = newLineStart.length + newLineEnd.length
 
-  // If line is short enough OR there are no named/type imports, no need to split into multiline
-  if (newLineLength <= maxImportLineLength || !nonDefaultImports.length) {
-    return newLineStart + newLineMiddle + newLineEnd
-  }
-
-  if (multilineImportStyle === 'single') {
-    // trim start & end to remove possible curly brace padding
-    const final = newLineStart.trim()
-      + '\n'
-      + tabChar
-      + nonDefaultImports.join(',\n' + tabChar)
-      + (commaDangle ? ',' : '')
-      + '\n'
-      + newLineEnd.trim()
-
-    return final
+  if (newLineLength <= maxImportLineLength) {
+    return newLineStart + newLineEnd
   }
 
   let line = newLineStart
+  if (useParens) line += '('
   let fullText = ''
+  const lineEndChar = useParens ? '' : ' \\'
 
-  nonDefaultImports.forEach((name, i) => {
-    const isLast = i === nonDefaultImports.length - 1
+  imports.forEach((name, i) => {
+    const isLast = i === imports.length - 1
 
     let newText = (i > 0 ? ' ' : '') + name
     if (!isLast) newText += ','
 
-    const newLength = line.length + newText.length
-    // If it's the last import, we need to make sure that the line end "from ..." text will also fit on the line before
-    // appending the new import text.
-    if (
-      (!isLast && newLength <= maxImportLineLength)
-      || (isLast && newLength + newLineEnd <= maxImportLineLength)
-    ) {
+    let newLength = line.length + newText.length
+    if (useParens && isLast) newLength++ // for closing parenthesis
+    if (!useParens && !isLast) newLength += 2 // for final ' \'
+
+    if (newLength < maxImportLineLength) {
       line += newText
+      if (isLast) fullText += line
     } else {
-      const newLine = tabChar + newText
-      fullText += line + '\n' + newLine
-      line = newLine
+      fullText += line + lineEndChar + '\n' + tabChar
+      line = newText.trim()
     }
   })
 
-  return fullText + newLineEnd
+  if (useParens) fullText += ')'
+  return fullText
 }
 
 function getRelativeImportPath(file, absImportPath) {

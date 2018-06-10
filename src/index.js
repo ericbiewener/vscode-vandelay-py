@@ -11,6 +11,7 @@ async function activate() {
     processCachedData,
     buildImportItems,
     insertImport,
+    multilineImportParentheses: true,
   })
 }
 exports.activate = activate
