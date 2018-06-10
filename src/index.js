@@ -7,7 +7,6 @@ async function activate() {
 
   vandelay.registerPlugin({
     language: 'py',
-    importsAreArrays: true,
     cacheFile,
     processCachedData,
     buildImportItems,

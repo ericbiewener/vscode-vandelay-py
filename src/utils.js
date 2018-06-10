@@ -11,40 +11,61 @@ function trimPath(filepath, removeDirs) {
     : ext ? filepath.slice(0, -ext.length) : filepath
 }
 
-function strBetween(str, startChar, endChar) {
-  const start = str.search(startChar)
+// TODO: add useRegex to vandelay-js... or just share these functions somehow?
+function strBetween(str, startChar, endChar, useRegex) {
+  const start = useRegex
+    ? str.search(startChar)
+    : str.indexOf(startChar)
   if (start < 0) return
   const substr = str.slice(start + 1)
-  const end = substr.search(endChar || startChar)
+  const end = useRegex
+    ? substr.search(endChar || startChar)
+    : substr.indexOf(endChar || startChar)
   if (end < 0) return
-  return substr.slice(0, end)
+  return substr.slice(0, end).trim()
 }
 
 function parseLineImportPath(line) {
-  return strBetween(line, /['"]/)
+  return strBetween(line, ' ').trim()
 }
 
-function strUntil(str, endChar) {
-  const index = str.search(endChar)
+// TODO: add useRegex to vandelay-js... or just share these functions somehow?
+function strAfter(str, afterChar, useRegex) {
+  const index = useRegex
+    ? str.search(afterChar)
+    : str.indexOf(afterChar)
+  return index < 0 ? str : str.slice(index + afterChar.length)
+}
+
+// TODO: add useRegex to vandelay-js... or just share these functions somehow?
+function strUntil(str, endChar, useRegex) {
+  const index = useRegex
+    ? str.search(endChar)
+    : str.indexOf(endChar)
   return index < 0 ? str : str.slice(0, index)
 }
 
-function isPathNodeModule(plugin, importPath) {
+function isPathPackage(plugin, importPath) {
   if (importPath.startsWith('.')) return false
-  return !plugin.absolutePaths.some(p => p === importPath || importPath.startsWith(p + '/'))
+  const pathStart = strUntil(importPath, '.')
+  return !plugin.includePaths.some(p => {
+    const relativePath = p.slice(plugin.projectRoot.length + 1)
+    return strUntil(relativePath, '/') === pathStart
+  })
 }
 
 function getLineImports(lines, lineIndex) {
   let importText
   const line = lines[lineIndex]
-  
-  if (line.includes(' from ')) {
+
+  const hasParens = line.includes(' import (') && !line.endsWith(')')
+  if (!hasParens && !line.endsWith('\\')) {
     importText = line
   }
   else {
     for (let i = lineIndex; i < lines.length; i++) {
-      if (lines[i].includes(' from ')) {
-        importText = lines.slice(lineIndex, i + 1).join(' ')
+      if ((hasParens && line.endsWith(')')) || (!hasParens && !line.endsWith('\\'))) {
+        importText = lines.slice(lineIndex, i + 1).join('')
         break
       }
     }
@@ -52,25 +73,8 @@ function getLineImports(lines, lineIndex) {
 
   if (!importText) return
   
-  const imports = {named: [], types: []}
-
-  if (importText[7] !== '{') imports.default = strBetween(importText, ' ').replace(',', '')
-  
-  const nonDefaultImportText = strBetween(importText, '{', '}')
-  if (!nonDefaultImportText) return imports
-
-  nonDefaultImportText.split(',').forEach(item => {
-    const trimmedItem = item.trim()
-    if (!trimmedItem) return // Trailing commas on named/type imports will lead to this
-
-    if (trimmedItem.startsWith('type ')) {
-      imports.types.push(trimmedItem.slice(5))
-    } else {
-      imports.named.push(trimmedItem)
-    }
-  })
-
-  return imports
+  importText = strAfter(importText, 'import ').replace(/[()\\ ]/g, '') // Remove parentheses, slashes, spaces
+  return importText.split(',')
 }
 
 module.exports = {
@@ -78,6 +82,6 @@ module.exports = {
   strBetween,
   parseLineImportPath,
   strUntil,
-  isPathNodeModule,
+  isPathPackage,
   getLineImports,
 }

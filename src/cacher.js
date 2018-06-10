@@ -1,14 +1,61 @@
 const fs = require('fs-extra')
-
-// TODO: extraImport parsing
+const _ = require('lodash')
+const {parseLineImportPath, isPathPackage, getLineImports} = require('./utils')
 
 function cacheFile(plugin, filepath, data = {_extraImports: {}}) {
   const classes = []
   const functions = []
   const constants = []
+  let multiLineStart
+  let multiLineUsingParens
 
   const lines = fs.readFileSync(filepath, 'utf8').split('\n')
-  for (const line of lines) {
+
+  lines.forEach((line, i) => {
+    // Cache packages in _extraImports
+    if (line.startsWith('import ')) {
+      const linePath = line.split(' ')[1]
+      const existing = data._extraImports[linePath] || {}
+      existing.importEntirePackage = true;
+      data._extraImports[linePath] = existing
+      return
+    }
+    
+    const isImportStart = line.startsWith('from ')
+    if (isImportStart || multiLineStart != null) {
+    
+      // If multiline, just continue looping until we find the end
+      if (multiLineStart != null) {
+        if (multiLineUsingParens) {
+          if (!line.endsWith(')')) return
+        } else {
+          if (line.endsWith('\\')) return
+        }
+      }
+      // Check if starting multiline
+      else {
+        const hasParens = line.includes(' import (') && !line.endsWith(')')
+        if (hasParens || line.endsWith('\\')) {
+          multiLineStart = i
+          multiLineUsingParens = hasParens
+          return
+        }
+      }
+
+      const importStartLine = isImportStart ? i : multiLineStart
+      multiLineStart = null
+      
+      const linePath = parseLineImportPath(line)
+      if (!isPathPackage(plugin, linePath)) return
+      
+      const lineImports = getLineImports(lines, importStartLine)
+      const existing = data._extraImports[linePath] || {isExtraImport: true}
+
+      existing.exports = _.union(existing.exports, lineImports)
+      data._extraImports[linePath] = existing
+      return
+    }
+
     const words = line.split(' ')
     const word0 = words[0]
     const word1 = words[1]
@@ -27,10 +74,10 @@ function cacheFile(plugin, filepath, data = {_extraImports: {}}) {
     else if (word1 === '=' && word0.toUpperCase() === word0) {
       constants.push(word0)
     }
-  }
+  })
 
   const exp = [...classes, ...functions, ...constants]
-  if (exp.length) data[plugin.utils.getFilepathKey(filepath)] = exp
+  if (exp.length) data[plugin.utils.getFilepathKey(filepath)] = { exports: exp }
 
   return data
 }

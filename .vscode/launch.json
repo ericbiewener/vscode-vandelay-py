@@ -6,12 +6,22 @@
 	"version": "0.2.0",
     "configurations": [
         {
-            "name": "Extension",
+            "name": "PY - Single Root Workspace Extension",
             "type": "extensionHost",
             "request": "launch",
             "runtimeExecutable": "${execPath}",
             "args": [
-                "${workspaceFolder}/_tp-be.code-workspace",
+                "${workspaceFolder}/../test-workspaces/py",
+                "--extensionDevelopmentPath=${workspaceFolder}"
+            ]
+        },
+        {
+            "name": "PY - Multi Root Workspace Extension",
+            "type": "extensionHost",
+            "request": "launch",
+            "runtimeExecutable": "${execPath}",
+            "args": [
+                "${workspaceFolder}/../test-workspaces/py-multi-root.code-workspace",
                 "--extensionDevelopmentPath=${workspaceFolder}"
             ]
         },
