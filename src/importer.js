@@ -1,9 +1,7 @@
-// TODO: to support importing when `require` is used rather than `import from`, look for the last line that has a
-// `require` statement but no indentation. That ensures you aren't dealing with a local require
-const {window, Range, Position} = require('vscode')
+const {window} = require('vscode')
 const path = require('path')
 const _ = require('lodash')
-const {strAfter, strBetween, trimPath, parseLineImportPath, isPathPackage} = require('./utils')
+const {getLineImports, parseLineImportPath, isPathPackage} = require('./utils')
 
 function buildImportItems(plugin, exportData) {
   const {projectRoot, shouldIncludeImport} = plugin
@@ -17,10 +15,8 @@ function buildImportItems(plugin, exportData) {
     }
 
     const data = exportData[importPath]
-
-    const ext = path.extname(importPath)
-    const importPathNoExt = ext ? importPath.slice(0, -ext.length) : importPath
-    let dotPath = importPathNoExt.replace(/\//g, '.')
+    let dotPath
+    dotPath = plugin.utils.removeExt(importPath).replace(/\//g, '.')
     if (plugin.processImportPath) dotPath = plugin.processImportPath(dotPath)
 
     if (data.importEntirePackage) {
@@ -44,7 +40,7 @@ function buildImportItems(plugin, exportData) {
   return items
 }
 
-async function insertImport(plugin, importSelection) {
+function insertImport(plugin, importSelection) {
   const {label: exportName, description: importPath, isExtraImport} = importSelection
   const editor = window.activeTextEditor
 
@@ -55,22 +51,7 @@ async function insertImport(plugin, importSelection) {
   if (!lineImports) return
   const newLine = getNewLine(plugin, importPath, lineImports)
   
-  const {start, lineIndexModifier, isFirstImportLine} = linePosition
-  const end = linePosition.end || start
-  
-  await editor.edit(builder => {
-    if (!lineIndexModifier) {
-      builder.replace(new Range(start, 0, end, lines[end].length), newLine)
-    } else if (lineIndexModifier === 1) {
-      builder.insert(new Position(end, lines[end].length), '\n' + newLine)
-    } else { // -1
-      // If it's the first import line, then add an extra new line between it and the subsequent non-import code.
-      // We only need to worry about this here, because if `isFirstImportLine` = true, the only alternative
-      // `lineIndexModifier` is 1, which occurs when the file only has comments
-      const extraNewLine = isFirstImportLine ? '\n' : ''
-      builder.insert(new Position(end, 0), newLine + '\n' + extraNewLine)
-    }
-  })
+  plugin.utils.insertLine(newLine, linePosition, lines)
 }
 
 /**
@@ -90,7 +71,7 @@ function getLinePosition(plugin, importPath, isExtraImport, lines) {
     
     if (!isMultiLine) {
       if (line.startsWith('import')) {
-        const linePath = parseLineImportPath(line)
+        const linePath = parseLineImportPath(plugin, line)
         if (linePath === importPath) return lineData // Return start/end data immediately if matching path found
         importLineData[linePath] = {start: i}
         continue
@@ -121,7 +102,7 @@ function getLinePosition(plugin, importPath, isExtraImport, lines) {
     isMultiLine = false
     isInsideParens = false
 
-    const linePath = parseLineImportPath(lines[start])
+    const linePath = parseLineImportPath(plugin, lines[start])
     const lineData = {start, end: i}
     if (linePath === importPath) return lineData // Return start/end data immediately if matching path found
     importLineData[linePath] = lineData
@@ -206,8 +187,7 @@ function getNewLineImports(lines, exportName, linePosition) {
 
   if (lineIndexModifier || isFirstImportLine) return [exportName]
 
-  const singleLine = lines.slice(start, end + 1).join(' ')
-  const lineImports = strAfter(singleLine, 'import ').replace(/[()\\ ]/g, '').split(',')
+  const lineImports = getLineImports(lines, start, end)
   lineImports.push(exportName)
   return lineImports
 }
@@ -220,9 +200,7 @@ function getNewLine(plugin, importPath, imports) {
   const newLineStart = 'from ' + importPath + ' import '
   const newLineEnd = imports.join(', ')
 
-  // TODO: share next two lines in shared plugin utils
-  const {options} = window.activeTextEditor
-  const tabChar = options.insertSpaces ? _.repeat(' ', options.tabSize) : '\t'
+  const tabChar = plugin.utils.getTabChar()
   const newLineLength = newLineStart.length + newLineEnd.length
 
   if (newLineLength <= maxImportLineLength) {

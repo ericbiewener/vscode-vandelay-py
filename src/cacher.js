@@ -22,6 +22,9 @@ function cacheFile(plugin, filepath, data = {_extraImports: {}}) {
     }
     
     const isImportStart = line.startsWith('from ')
+    const linePath = isImportStart ? parseLineImportPath(plugin, line) : null
+    if (isImportStart && !isPathPackage(plugin, linePath)) return
+
     if (isImportStart || multiLineStart != null) {
     
       // If multiline, just continue looping until we find the end
@@ -43,16 +46,14 @@ function cacheFile(plugin, filepath, data = {_extraImports: {}}) {
       }
 
       const importStartLine = isImportStart ? i : multiLineStart
+      const startLinePath = isImportStart ? linePath : parseLineImportPath(plugin, lines[importStartLine])
       multiLineStart = null
       
-      const linePath = parseLineImportPath(line)
-      if (!isPathPackage(plugin, linePath)) return
-      
       const lineImports = getLineImports(lines, importStartLine)
-      const existing = data._extraImports[linePath] || {isExtraImport: true}
+      const existing = data._extraImports[startLinePath] || {isExtraImport: true}
 
       existing.exports = _.union(existing.exports, lineImports)
-      data._extraImports[linePath] = existing
+      data._extraImports[startLinePath] = existing
       return
     }
 
