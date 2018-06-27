@@ -12,12 +12,18 @@ function cacheFile(plugin, filepath, data = {_extraImports: {}}) {
   const lines = fs.readFileSync(filepath, 'utf8').split('\n')
 
   lines.forEach((line, i) => {
-    // Cache packages in _extraImports
+    // Importing entire module
     if (line.startsWith('import ')) {
       const linePath = line.split(' ')[1]
-      const existing = data._extraImports[linePath] || {}
-      existing.importEntirePackage = true;
-      data._extraImports[linePath] = existing
+      
+      if (isPathPackage(plugin, linePath)) {
+        const existing = data._extraImports[linePath] || {}
+        existing.importEntirePackage = true;
+        data._extraImports[linePath] = existing
+      } else {
+        data[linePath] = {importEntirePackage: true}
+      }
+
       return
     }
     
@@ -50,7 +56,7 @@ function cacheFile(plugin, filepath, data = {_extraImports: {}}) {
       multiLineStart = null
       
       const lineImports = getLineImports(lines, importStartLine)
-      const existing = data._extraImports[startLinePath] || {isExtraImport: true}
+      const existing = data._extraImports[startLinePath] || {}
 
       existing.exports = _.union(existing.exports, lineImports)
       data._extraImports[startLinePath] = existing
