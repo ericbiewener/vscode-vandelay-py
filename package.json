@@ -10,7 +10,9 @@
     "categories": [
         "Other"
     ],
-    "activationEvents": ["*"],
+    "activationEvents": [
+        "*"
+    ],
     "main": "./src/index.js",
     "scripts": {
         "build": "babel ./src --out-dir=./build --source-maps",
