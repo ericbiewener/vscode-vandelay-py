@@ -2,7 +2,7 @@ const {window} = require('vscode')
 const path = require('path')
 const _ = require('lodash')
 const {getLineImports, parseLineImportPath, isPathPackage} = require('./utils')
-const {parseImports, getLastInitialCommentLine} = require('./regex')
+const {parseImports, getLastInitialComment} = require('./regex')
 
 function buildImportItems(plugin, exportData) {
   const {projectRoot, shouldIncludeImport} = plugin
@@ -58,43 +58,43 @@ function insertImport(plugin, importSelection) {
 
   const fileText = editor.document.getText()
   const imports = parseImports(fileText)
-  const linePosition = getLinePosition(
+  const importPosition = getImportPosition(
     plugin,
     importPath,
     isExtraImport,
     imports,
     fileText
   )
+
   if (
     isPackageImport &&
-    !linePosition.isFirstImportLine &&
-    !linePosition.lineIndexModifier
+    !importPosition.isFirstImport &&
+    !importPosition.indexModifier
   ) {
     window.showErrorMessage(
       'Can\'t import entire package when parts of the package are already being imported.'
     )
     return
   }
-  const lineImports = getNewLineImports(imports, exportName, linePosition)
+
+  const lineImports = getNewLineImports(importPosition, exportName)
   if (!lineImports) return
 
   let newLine = getNewLine(plugin, importPath, lineImports)
 
   // Import groups
 
-  const {lineIndexModifier} = linePosition
-  // If lineIndexModifier is 0, we're adding to a pre-existing line so no need to worry about groups
-  if (lineIndexModifier && plugin.importGroups) {
-    const insertPosition =
-      lineIndexModifier < 0 ? linePosition.start - 1 : linePosition.start
-    const surrounding = getSurroundingImportPaths(plugin, lines, insertPosition)
+  const {indexModifier} = importPosition
+  // If indexModifier is 0, we're adding to a pre-existing line so no need to worry about groups
+  if (indexModifier && plugin.importGroups) {
+    const surrounding = getSurroundingImportPaths(plugin, imports, importPosition)
 
     if (surrounding.before || surrounding.after) {
       const beforeGroup = surrounding.before
-        ? findImportPathGroup(plugin, surrounding.before)
+        ? findImportPathGroup(plugin, surrounding.before.path)
         : null
       const afterGroup = surrounding.after
-        ? findImportPathGroup(plugin, surrounding.after)
+        ? findImportPathGroup(plugin, surrounding.after.path)
         : null
       const newGroup = findImportPathGroup(plugin, importPath || exportName)
 
@@ -104,73 +104,71 @@ function insertImport(plugin, importSelection) {
     }
   }
 
-  plugin.utils.insertLine(newLine, linePosition, lines)
+  plugin.utils.insertLine(newLine, importPosition)
 }
 
 function findImportPathGroup(plugin, importPath) {
   const importPathPrefix = plugin.utils.strUntil(importPath, '.')
 
   for (const group of plugin.importGroups) {
-    if (
-      Array.isArray(group)
-        ? group.includes(importPathPrefix)
-        : group(importPathPrefix)
-    ) {
+    if (group.includes(importPathPrefix)) {
       return group
     }
   }
 }
 
-function maybeParseLineImportPath(plugin, line) {
-  return line.startsWith('from') || line.startsWith('import')
-    ? parseLineImportPath(plugin, line)
-    : null
-}
+function getSurroundingImportPaths(plugin, imports, importPosition) {
+  const {match, indexModifier} = importPosition
+  const matchIndex = imports.indexOf(match) + indexModifier
+  const before = imports[matchIndex]
+  const after = imports[matchIndex + 1]
+  const lineBreakExists = before.end !== after.start
 
-function getSurroundingImportPaths(plugin, lines, insertPosition) {
-  let before
-
-  for (let i = insertPosition; i > -1; i--) {
-    const line = lines[i].trim()
-    if (!line || line.startsWith('#') || line.startsWith('"""')) continue // don't break in case comment is in the middle of a group
-    before = maybeParseLineImportPath(plugin, line)
-    if (before) break
-  }
-
+  // If a line break exists, then either before or after should be null depending on whether
+  // the import is being inserted directly after `before` or directly before `after`
   return {
-    before,
-    after: maybeParseLineImportPath(plugin, lines[insertPosition + 1].trim())
+    before: lineBreakExists && indexModifier < 0 ? null : before,
+    after: lineBreakExists && indexModifier > 0 ? null : after,
   }
 }
 
 /**
  * Determine which line number should get the import. This could be merged into that line if they have the same path
- * (resulting in lineIndexModifier = 0), or inserted as an entirely new import line before or after
- * (lineIndexModifier = -1 or 1)
+ * (resulting in indexModifier = 0), or inserted as an entirely new import line before or after
+ * (indexModifier = -1 or 1)
  **/
-function getLinePosition(plugin, importPath, isExtraImport, imports, text) {
+function getImportPosition(plugin, importPath, isExtraImport, imports, text) {
   // If no imports, find first non-comment line
   if (!imports.length) {
-    const lineIndex = getLastInitialCommentLine(text)
     return {
-      start: lineIndex != null ? lineIndex : text.split('\n').length - 1,
-      lineIndexModifier: 1
+      match: getLastInitialComment(text),
+      indexModifier: 1,
+      isFirstImport: true
     }
   }
 
   // Imports exist, find correct sort order
 
-  const importLineData = {}
   const importPos = plugin.importOrderMap[importPath]
   const importIsAbsolute = !importPath.startsWith('.')
+
+  // First look for an exact match. This is done outside the main sorting loop because we don't care
+  // where the exact match is located if it exists.
+  const exactMatch = imports.find(i => i.path === importPath)
+  if (exactMatch) {
+    return {
+      match: exactMatch,
+      indexModifier: 0
+    }
+  }
 
   for (const importData of imports) {
     // plugin.importOrder check
     const lineImportPos = plugin.importOrderMap[importData.path]
     if (importPos != null && (!lineImportPos || importPos < lineImportPos)) {
       return {
-        start: importLineData[importData.path].start,
-        lineIndexModifier: -1
+        match: importData,
+        indexModifier: -1
       }
     } else if (lineImportPos != null) {
       continue
@@ -181,8 +179,8 @@ function getLinePosition(plugin, importPath, isExtraImport, imports, text) {
 
     if (isExtraImport && (!lineIsPackage || importPath < importData.path)) {
       return {
-        start: importLineData[importData.path].start,
-        lineIndexModifier: -1
+        match: importData,
+        indexModifier: -1
       }
     } else if (lineIsPackage) {
       continue
@@ -192,8 +190,8 @@ function getLinePosition(plugin, importPath, isExtraImport, imports, text) {
     const lineIsAbsolute = !importData.path.startsWith('.')
     if (importIsAbsolute && (!lineIsAbsolute || importPath < importData.path)) {
       return {
-        start: importLineData[importData.path].start,
-        lineIndexModifier: -1
+        match: importData,
+        indexModifier: -1
       }
     } else if (lineIsAbsolute) {
       continue
@@ -201,22 +199,18 @@ function getLinePosition(plugin, importPath, isExtraImport, imports, text) {
   }
 
   // Since we didn't find a line to sort the new import before, it will go after the last import
-  const lastLineData = importLineData[_.last(imports).path]
   return {
-    start: lastLineData.end || lastLineData.start,
-    lineIndexModifier: 1
+    match: _.last(imports),
+    indexModifier: 1
   }
 }
 
-function getNewLineImports(imports, exportName, linePosition) {
-  const {start, end, lineIndexModifier} = linePosition
-  if (lineIndexModifier) return [exportName]
+function getNewLineImports(importPosition, exportName) {
+  const {match, indexModifier} = importPosition
 
-  const lineImports = imports(lines, start, end)
-  if (lineImports.includes(exportName)) return
-
-  lineImports.push(exportName)
-  return lineImports
+  if (indexModifier) return [exportName]
+  if (match.imports.includes(exportName)) return
+  return [...match.imports, exportName]
 }
 
 function getNewLine(plugin, importPath, imports) {

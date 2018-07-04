@@ -18,4 +18,3 @@ SORTING
 ## Misc
 - Will not cache functions that begin with an underscore
 
-- importGroups -> can be function!
