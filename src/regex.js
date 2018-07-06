@@ -1,8 +1,15 @@
-// Imports
+/**
+ * Regexes must end with `.*` after last capturing group to ensure that we capture the full line.
+ * This is necessary so that the `end` property in the results is the correct character.
+ * 
+ * Matching groups:
+ *    1. path
+ *    2. imports
+ */
 const importRegex = {
   entirePackage: /^import ([^\s]+)/gm,
-  singleLine: /^from +?(.+) +?import +?([^(\n\\]+\n)/gm,
-  multiline: /^from +?(.+) +?import +\(([\S\s]*?)\)/gm,
+  singleLine: /^from +(.+) +import +([^#"]*).*/gm,
+  multiline: /^from +?(.+) +?import +\(([\S\s]*?)\).*/gm,
 }
 
 function parseImportsWithRegex(text, regex, replacer, imports = []) {
@@ -13,10 +20,11 @@ function parseImportsWithRegex(text, regex, replacer, imports = []) {
       start: match.index,
       end: match.index + match[0].length,
     }
-    // entirePackage regex does not provide a second matching group
     if (match[2]) results.imports = match[2].replace(replacer, '').split(',')
     imports.push(results)
   }
+
+  regex.lastIndex = 0;
   return imports
 }
 
@@ -28,7 +36,7 @@ function parseImports(text) {
 }
 
 // Comments
-const comments = /^(?:[ \t]*#.*| *""".*\n?.*)/gm
+const comments = /^(?:[ \t]*#|[ \t]*"""[^]*?""")/gm
 
 // #TODO: make part of vandelay-core, that accets args of `text, singleLineRegex, multilineRegex`
 function getLastInitialComment(text) {
@@ -48,5 +56,5 @@ function getLastInitialComment(text) {
 
 module.exports = {
   parseImports,
-  getLastInitialComment
+  getLastInitialComment,
 }
