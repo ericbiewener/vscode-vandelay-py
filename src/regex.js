@@ -6,6 +6,7 @@
  *    1. path
  *    2. imports
  */
+// TODO: review regexes now that i am better at it...
 const importRegex = {
   entirePackage: /^import ([^\s]+)/gm,
   singleLine: /^from +(.+) +import +([^#"]*).*/gm,

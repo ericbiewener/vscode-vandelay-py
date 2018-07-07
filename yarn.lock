@@ -436,8 +436,8 @@ escape-string-regexp@1.0.5, escape-string-regexp@^1.0.2, escape-string-regexp@^1
   resolved "https://registry.yarnpkg.com/escape-string-regexp/-/escape-string-regexp-1.0.5.tgz#1b61c0562190a8dff6ae3bb2cf0200ca130b86d4"
 
 eslint-config-ericbiewener@^1.0.1:
-  version "1.0.9"
-  resolved "https://registry.yarnpkg.com/eslint-config-ericbiewener/-/eslint-config-ericbiewener-1.0.9.tgz#e5fbcfae91962e643b86a432377aa53fdb9dec7f"
+  version "1.0.10"
+  resolved "https://registry.yarnpkg.com/eslint-config-ericbiewener/-/eslint-config-ericbiewener-1.0.10.tgz#179edc2638bf053bb5221a924fecc63c434de97b"
   dependencies:
     eslint-plugin-react "^7.10.0"
 
