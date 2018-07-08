@@ -36,26 +36,9 @@ function parseImports(text) {
   return parseImportsWithRegex(text, importRegex.multiline, /[\s()]/g, imports)
 }
 
-// Comments
-const comments = /^(?:[ \t]*#|[ \t]*"""[^]*?""")/gm
-
-// #TODO: make part of vandelay-core, that accets args of `text, singleLineRegex, multilineRegex`
-function getLastInitialComment(text) {
-  // Iterates over comment line matches. If one doesn't begin where the previous one left off, this means
-  // a non comment line came between them.
-  let expectedNextIndex = 0
-  let match
-  let prevMatch
-  while ((match = comments.exec(text))) {
-    if (match.index !== expectedNextIndex) break
-    expectedNextIndex = comments.lastIndex + 1
-    prevMatch = match
-  }
-
-  return prevMatch
-}
+const commentRegex = /^(?:[ \t]*#|[ \t]*"""[^]*?""")/gm
 
 module.exports = {
   parseImports,
-  getLastInitialComment,
+  commentRegex,
 }

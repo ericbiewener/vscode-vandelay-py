@@ -1,8 +1,7 @@
 const {window} = require('vscode')
 const path = require('path')
-const _ = require('lodash')
-const {getLineImports, parseLineImportPath} = require('../utils')
 const {parseImports} = require('../regex')
+const {getImportPosition} = require('./getImportPosition')
 
 function buildImportItems(plugin, exportData) {
   const {projectRoot, shouldIncludeImport} = plugin
@@ -79,7 +78,6 @@ function insertImport(plugin, importSelection) {
 
   const lineImports = getNewLineImports(importPosition, exportName)
   if (!lineImports) return
-
   let newLine = getNewLine(plugin, importPath, lineImports)
 
   // Import groups

@@ -1,6 +1,6 @@
 const _ = require('lodash')
-const { getLastInitialComment, } = require('../regex')
-const { isPathPackage, } = require('../utils')
+const { commentRegex } = require('../regex')
+const { isPathPackage } = require('../utils')
 
 /**
  * Determine which line number should get the import. This could be merged into that line
@@ -12,7 +12,7 @@ function getImportPosition(plugin, importPath, isExtraImport, imports, text) {
   // If no imports, find first non-comment line
   if (!imports.length) {
     return {
-      match: getLastInitialComment(text),
+      match: plugin.utils.getLastInitialComment(text, commentRegex),
       indexModifier: 1,
       isFirstImport: true,
     }
@@ -24,7 +24,7 @@ function getImportPosition(plugin, importPath, isExtraImport, imports, text) {
   // where the exact match is located if it exists.
   const exactMatch = imports.find(i => i.path === importPath)
   if (exactMatch) {
-    return { match: exactMatch, indexModifier: 0, }
+    return { match: exactMatch, indexModifier: 0 }
   }
 
   const importPos = plugin.importOrderMap[importPath]
@@ -46,7 +46,7 @@ function getImportPosition(plugin, importPath, isExtraImport, imports, text) {
     const lineIsPackage = isPathPackage(plugin, importData.path)
 
     if (isExtraImport && (!lineIsPackage || importPath < importData.path)) {
-      return { match: importData, indexModifier: -1, }
+      return { match: importData, indexModifier: -1 }
     } else if (lineIsPackage) {
       continue
     }
@@ -54,7 +54,7 @@ function getImportPosition(plugin, importPath, isExtraImport, imports, text) {
     // Absolute path check
     const lineIsAbsolute = !importData.path.startsWith('.')
     if (importIsAbsolute && (!lineIsAbsolute || importPath < importData.path)) {
-      return { match: importData, indexModifier: -1, }
+      return { match: importData, indexModifier: -1 }
     } else if (lineIsAbsolute) {
       continue
     }
