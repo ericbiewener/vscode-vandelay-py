@@ -1,3 +1,5 @@
+const _ = require('lodash')
+
 /**
  * Regexes must end with `.*` after last capturing group to ensure that we capture the full line.
  * This is necessary so that the `end` property in the results is the correct character.
@@ -21,7 +23,7 @@ function parseImportsWithRegex(text, regex, replacer, imports = []) {
       start: match.index,
       end: match.index + match[0].length,
     }
-    if (match[2]) results.imports = match[2].replace(replacer, '').split(',')
+    if (match[2]) results.imports = _.compact(match[2].replace(replacer, '').split(','))
     imports.push(results)
   }
 
