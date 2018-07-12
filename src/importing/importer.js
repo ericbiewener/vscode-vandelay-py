@@ -120,7 +120,7 @@ function getSurroundingImportPaths(plugin, imports, importPosition) {
   const matchIndex = imports.indexOf(match) + indexModifier
   const before = imports[matchIndex]
   const after = imports[matchIndex + 1]
-  const lineBreakExists = before.end !== after.start
+  const lineBreakExists = before.end !== after.start - 1
 
   // If a line break exists, then either before or after should be null depending on whether
   // the import is being inserted directly after `before` or directly before `after`
