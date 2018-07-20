@@ -27,19 +27,24 @@ function getImportPosition(plugin, importPath, isExtraImport, imports, text) {
     return { match: exactMatch, indexModifier: 0 }
   }
 
-  const importPos = plugin.importOrderMap[importPath]
+  const importPos = plugin.utils.getImportOrderPosition(
+    plugin.utils.strUntil(importPath, '.')
+  )
   const importIsAbsolute = !importPath.startsWith('.')
 
   for (const importData of imports) {
     // plugin.importOrder check
-    const lineImportPos = plugin.importOrderMap[importData.path]
-    if (importPos != null && (!lineImportPos || importPos < lineImportPos)) {
+    const lineImportPos = plugin.utils.getImportOrderPosition(
+      plugin.utils.strUntil(importData.path, '.')
+    )
+    if (
+      (importPos == null && lineImportPos != null) ||
+      importPos < lineImportPos
+    ) {
       return {
         match: importData,
         indexModifier: -1,
       }
-    } else if (lineImportPos != null) {
-      continue
     }
 
     // Package check
