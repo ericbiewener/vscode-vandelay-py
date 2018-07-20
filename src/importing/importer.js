@@ -8,7 +8,8 @@ function buildImportItems(plugin, exportData) {
   const activeFilepath = window.activeTextEditor.document.fileName
   const items = []
 
-  for (const importPath of Object.keys(exportData).sort()) {
+  const sortedKeys = plugin.sharedUtils.getExportDataKeysByCachedDate(exportData)
+  for (const importPath of sortedKeys) {
     const data = exportData[importPath]
     const absImportPath = data.isExtraImport
       ? importPath
