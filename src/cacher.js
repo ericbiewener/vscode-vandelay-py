@@ -1,9 +1,9 @@
 const fs = require('fs-extra')
 const _ = require('lodash')
-const {isPathPackage} = require('./utils')
-const {parseImports} = require('./regex')
+const { isPathPackage } = require('./utils')
+const { parseImports } = require('./regex')
 
-function cacheFile(plugin, filepath, data = {_extraImports: {}}) {
+function cacheFile(plugin, filepath, data = { _extraImports: {} }) {
   const fileText = fs.readFileSync(filepath, 'utf8')
   const imports = parseImports(fileText)
 
@@ -14,12 +14,12 @@ function cacheFile(plugin, filepath, data = {_extraImports: {}}) {
       if (importData.imports) {
         existing.exports = _.union(existing.exports, importData.imports)
       } else {
-        existing.importEntirePackage = true;
+        existing.importEntirePackage = true
       }
     }
     // If there are imports, than they'll get added to the cache when that file gets cached.
     else if (!importData.imports) {
-      data[importData.path] = {importEntirePackage: true}
+      data[importData.path] = { importEntirePackage: true }
     }
   }
 
@@ -35,12 +35,10 @@ function cacheFile(plugin, filepath, data = {_extraImports: {}}) {
 
     if (word0 === 'class') {
       classes.push(trimClassOrFn(word1))
-    }
-    else if (word0 === 'def') {
+    } else if (word0 === 'def') {
       // Don't export private functions
       if (!word1.startsWith('_')) functions.push(trimClassOrFn(word1))
-    }
-    else if (word1 === '=' && word0.toUpperCase() === word0) {
+    } else if (word1 === '=' && word0.toUpperCase() === word0) {
       constants.push(word0)
     }
   }

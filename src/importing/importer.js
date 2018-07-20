@@ -1,10 +1,10 @@
-const {window} = require('vscode')
+const { window } = require('vscode')
 const path = require('path')
-const {parseImports} = require('../regex')
-const {getImportPosition} = require('./getImportPosition')
+const { parseImports } = require('../regex')
+const { getImportPosition } = require('./getImportPosition')
 
 function buildImportItems(plugin, exportData) {
-  const {projectRoot, shouldIncludeImport} = plugin
+  const { projectRoot, shouldIncludeImport } = plugin
   const activeFilepath = window.activeTextEditor.document.fileName
   const items = []
 
@@ -31,7 +31,7 @@ function buildImportItems(plugin, exportData) {
     if (data.importEntirePackage) {
       items.push({
         label: importPath,
-        isExtraImport: data.isExtraImport
+        isExtraImport: data.isExtraImport,
       })
     }
 
@@ -41,7 +41,7 @@ function buildImportItems(plugin, exportData) {
       items.push({
         label: exportName,
         description: dotPath,
-        isExtraImport: data.isExtraImport
+        isExtraImport: data.isExtraImport,
       })
     }
   }
@@ -50,7 +50,7 @@ function buildImportItems(plugin, exportData) {
 }
 
 function insertImport(plugin, importSelection) {
-  const {label: exportName, isExtraImport} = importSelection
+  const { label: exportName, isExtraImport } = importSelection
   const isPackageImport = !importSelection.description
   const importPath = importSelection.description || exportName
   const editor = window.activeTextEditor
@@ -71,7 +71,7 @@ function insertImport(plugin, importSelection) {
     !importPosition.indexModifier
   ) {
     window.showErrorMessage(
-      'Can\'t import entire package when parts of the package are already being imported.'
+      "Can't import entire package when parts of the package are already being imported."
     )
     return
   }
@@ -82,10 +82,14 @@ function insertImport(plugin, importSelection) {
 
   // Import groups
 
-  const {indexModifier} = importPosition
+  const { indexModifier } = importPosition
   // If indexModifier is 0, we're adding to a pre-existing line so no need to worry about groups
   if (indexModifier && plugin.importGroups) {
-    const surrounding = getSurroundingImportPaths(plugin, imports, importPosition)
+    const surrounding = getSurroundingImportPaths(
+      plugin,
+      imports,
+      importPosition
+    )
 
     if (surrounding.before || surrounding.after) {
       const beforeGroup = surrounding.before
@@ -116,7 +120,7 @@ function findImportPathGroup(plugin, importPath) {
 }
 
 function getSurroundingImportPaths(plugin, imports, importPosition) {
-  const {match, indexModifier} = importPosition
+  const { match, indexModifier } = importPosition
   const matchIndex = imports.indexOf(match) + indexModifier
   const before = imports[matchIndex]
   const after = imports[matchIndex + 1]
@@ -131,7 +135,7 @@ function getSurroundingImportPaths(plugin, imports, importPosition) {
 }
 
 function getNewLineImports(importPosition, exportName) {
-  const {match, indexModifier} = importPosition
+  const { match, indexModifier } = importPosition
 
   if (indexModifier) return [exportName]
   if (match.imports.includes(exportName)) return
@@ -139,7 +143,7 @@ function getNewLineImports(importPosition, exportName) {
 }
 
 function getNewLine(plugin, importPath, imports) {
-  const {maxImportLineLength, multilineImportParentheses: useParens} = plugin
+  const { maxImportLineLength, multilineImportParentheses: useParens } = plugin
 
   imports.sort()
 
@@ -184,5 +188,5 @@ function getNewLine(plugin, importPath, imports) {
 
 module.exports = {
   buildImportItems,
-  insertImport
+  insertImport,
 }

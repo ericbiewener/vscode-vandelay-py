@@ -1,34 +1,49 @@
 {
-    "name": "vandelay-py",
-    "displayName": "Vandelay PY",
-    "description": "Python plugin for the VS Code Vandelay extension",
-    "version": "0.0.1",
-    "publisher": "edb",
-    "engines": {
-        "vscode": "^1.21.0"
-    },
-    "categories": [
-        "Other"
-    ],
-    "activationEvents": [
-        "*"
-    ],
-    "main": "./src/index.js",
-    "scripts": {
-        "build": "babel ./src --out-dir=./build --source-maps",
-        "postinstall": "node ./node_modules/vscode/bin/install",
-        "test": "jest"
-    },
-    "devDependencies": {
-        "eslint": "^4.11.0",
-        "eslint-config-ericbiewener": "^1.0.1",
-        "vscode": "^1.1.6"
-    },
-    "dependencies": {
-        "fs-extra": "^5.0.0",
-        "lodash": "^4.17.5"
-    },
-    "eslintIgnore": [
-        "**/__mocks__"
+  "name": "vandelay-py",
+  "displayName": "Vandelay PY",
+  "description": "Python plugin for the VS Code Vandelay extension",
+  "version": "0.0.1",
+  "publisher": "edb",
+  "engines": {
+    "vscode": "^1.21.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "*"
+  ],
+  "main": "./src/index.js",
+  "scripts": {
+    "build": "babel ./src --out-dir=./build --source-maps",
+    "postinstall": "node ./node_modules/vscode/bin/install",
+    "prettier": "prettier-eslint --prettier-last --write \"**/*.js\"",
+    "test": "jest"
+  },
+  "devDependencies": {
+    "eslint": "^4.11.0",
+    "eslint-config-ericbiewener": "^1.0.1",
+    "husky": "^0.14.3",
+    "lint-staged": "^7.2.0",
+    "prettier-eslint-cli": "^4.7.1",
+    "vscode": "^1.1.6"
+  },
+  "dependencies": {
+    "fs-extra": "^5.0.0",
+    "lodash": "^4.17.5"
+  },
+  "eslintIgnore": [
+    "**/__mocks__"
+  ],
+  "lint-staged": {
+    "**/*.js": [
+      "prettier-eslint --prettier-last --write",
+      "git add"
     ]
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  }
 }
