@@ -35,5 +35,34 @@
                 "--extensionTestsPath=${workspaceFolder}/test"
             ]
         }
+        {
+            "name": "Tests - Single Root",
+            "type": "extensionHost",
+            "request": "launch",
+            "runtimeExecutable": "${execPath}",
+            "env": {
+                "TEST_PROJECT": "single-root"
+            },
+            "args": [
+                "${workspaceFolder}/test/single-root",
+                "--extensionDevelopmentPath=${workspaceFolder}",
+                "--extensionTestsPath=${workspaceFolder}/test"
+            ]
+        },
+        {
+            "name": "Tests - UPDATE SNAPSHOTS - Single Root",
+            "type": "extensionHost",
+            "request": "launch",
+            "runtimeExecutable": "${execPath}",
+            "env": {
+                "TEST_PROJECT": "single-root",
+                "UPDATE_SNAPSHOT": "true"
+            },
+            "args": [
+                "${workspaceFolder}/test/single-root",
+                "--extensionDevelopmentPath=${workspaceFolder}",
+                "--extensionTestsPath=${workspaceFolder}/test"
+            ]
+        },
     ]
 }
