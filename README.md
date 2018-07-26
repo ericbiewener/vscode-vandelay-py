@@ -1,6 +1,12 @@
-# Vandelay PY
+<p align="center">
+    <img src="https://raw.githubusercontent.com/ericbiewener/vscode-vandelay-py/master/artwork/logo.png" width="128" height="112" />
+</p>
 
-Official Python plugin for the [Vandelay VS Code extension](https://github.com/ericbiewener/vscode-vandelay).
+<p align="center">
+  Official Python plugin for the <a href="https://github.com/ericbiewener/vscode-vandelay">Vandelay VS Code extension</a>.
+  <br />
+  An official <a href="https://github.com/ericbiewener/vscode-vandelay-js">JavaScript</a> plugin also exists.
+</p>
 
 ## Configuration
 INCLUDE INFO FOR VANDELAY-PY.JS CONFIG FILE
