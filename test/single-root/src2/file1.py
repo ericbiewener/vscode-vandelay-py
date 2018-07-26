@@ -1,3 +1,3 @@
-import { module2_src2_1} from 'module2'
+from package3 import package3_src2_file1_1
 
-export const src2_file1_1 = 'foo'
+CONSTANT_src2_file1_1 = 1

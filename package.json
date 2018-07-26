@@ -1,15 +1,40 @@
 {
   "name": "vandelay-py",
-  "displayName": "Vandelay PY",
-  "description": "Python plugin for the VS Code Vandelay extension",
-  "version": "0.0.1",
+  "displayName": "Vandelay Python",
+  "description": "Automatically generate import statements for Python.",
+  "version": "1.0.0-rc.1",
   "publisher": "edb",
+  "author": "Eric Biewener",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ericbiewener/vscode-vandelay-py"
+  },
+  "homepage": "https://github.com/ericbiewener/vscode-vandelay-py/blob/master/README.md",
+  "bugs": {
+    "url": "https://github.com/ericbiewener/vscode-vandelay-py/issues"
+  },
+  "categories": [
+    "Programming Languages",
+    "Snippets",
+    "Formatters",
+    "Other"
+  ],
+  "keywords": [
+    "multi-root ready",
+    "import",
+    "export",
+    "python",
+    "generator"
+  ],
+  "icon": "artwork/logo.svg",
+  "galleryBanner": {
+    "color": "#01263F",
+    "theme": "dark"
+  },
   "engines": {
     "vscode": "^1.21.0"
   },
-  "categories": [
-    "Other"
-  ],
   "activationEvents": [
     "*"
   ],
@@ -23,7 +48,9 @@
   "devDependencies": {
     "eslint": "^4.11.0",
     "eslint-config-ericbiewener": "^1.0.1",
+    "expect": "^23.4.0",
     "husky": "^0.14.3",
+    "jest-snapshot": "^23.4.1",
     "lint-staged": "^7.2.0",
     "prettier-eslint-cli": "^4.7.1",
     "vscode": "^1.1.6"

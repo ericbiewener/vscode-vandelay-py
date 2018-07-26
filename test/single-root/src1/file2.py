@@ -1,26 +1,16 @@
-import defaultModule_file2 from 'module1_file2'
+from package3 import package3_file2_1
 
-export const src1_file2_1 = 'foo'
-export const src1_file2_2 = "bar";
+def fn_file2_1():
+  pass
 
-src1_file2_3 = 7
-export src1_file2_3
+def fn_file2_2():
+  pass
 
-export function src1_file2_4() {
+class Class_file2_1():
+  pass
 
-}
+class Class_file2_2():
+  pass
 
-export class src1_file2_5 extends Component {
-
-}
-
-export type src1_file2_t_1 = {
-  foo: string,
-  bar: number,
-}
-
-export type src1_file2_t_2 = src1_file2_t_1 & { baz: 9 }
-
-export default function() {
-
-}
+CONSTANT_file2_1 = 1
+CONSTANT_file2_2 = 2
