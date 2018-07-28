@@ -24,3 +24,9 @@ SORTING
 ## Misc
 - Will not cache functions that begin with an underscore
 
+# exports
+classes
+functions
+constants
+NOT _private functions
+NOT non-constants

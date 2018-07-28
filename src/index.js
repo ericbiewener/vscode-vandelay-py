@@ -5,7 +5,7 @@ const { buildImportItems, insertImport } = require('./importing/importer')
 async function activate() {
   const vandelay = await extensions.getExtension('edb.vandelay').activate()
 
-  let api; // just used for testing
+  const _test = {}
 
   vandelay.registerPlugin({
     language: 'py',
@@ -15,10 +15,12 @@ async function activate() {
     insertImport,
     multilineImportParentheses: true,
     finalizePlugin(plugin) {
-      api = plugin
+      Object.assign(_test, plugin, {
+        _test: vandelay._test,
+      })
     },
   })
 
-  return api;
+  return _test
 }
 exports.activate = activate

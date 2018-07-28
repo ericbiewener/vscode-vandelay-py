@@ -27,11 +27,16 @@ def fn_file1_1():
 def fn_file1_2():
   pass
 
+def _private_fn():
+  pass
+
 class Class_file1_1():
   pass
 
 class Class_file1_2():
   pass
 
-CONSTANT_file1_1 = 1
-CONSTANT_file1_2 = 2
+CONSTANT_FILE1_1 = 1
+CONSTANT_FILE1_2 = 2
+
+non_constant = 3

@@ -107,7 +107,7 @@ function insertImport(plugin, importSelection) {
     }
   }
 
-  plugin.utils.insertLine(newLine, importPosition)
+  return plugin.utils.insertLine(newLine, importPosition)
 }
 
 function findImportPathGroup(plugin, importPath) {
