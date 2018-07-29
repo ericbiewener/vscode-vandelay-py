@@ -41,7 +41,20 @@ function parseImports(text) {
   return imports.sort((a, b) => a.start - b.start)
 }
 
-const commentRegex = /^(?:[ \t]*#|[ \t]*"""[^]*?""")/gm
+const commentRegex = /^(?:[ \t]*#|[ \t]*"""[^]*?""").*/gm
+/*
+# I'm a comment
+def foo():
+    pass
+
+"""asdfasdfsad"""
+
+"""
+asdfasfs
+"""
+
+asdfasdf
+*/
 
 module.exports = {
   parseImports,

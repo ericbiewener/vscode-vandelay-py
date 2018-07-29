@@ -28,33 +28,50 @@ const getImportItems = async (...fileParts) => {
   }
 }
 
-suite("howdy", function() {
-  beforeEach(function() {
-    console.log('before every test in every file');
-  });
-
-  test.only('insertImport', async function() {
-    const fileRoot = path.join(root, 'src1/insert-import')
-    const { items, plugin } = await getImportItems(fileRoot, 'empty.py')
-    await insertImport(plugin, items[0])
-    expect(window.activeTextEditor.document.getText()).toMatchSnapshot(this)
-
-    await openFile(fileRoot, 'has-code.py')
-    await insertImport(plugin, items[0])
-    expect(window.activeTextEditor.document.getText()).toMatchSnapshot(this)
-  })
+it('cacheProject', async function() {
+  const [plugin] = await Promise.all([
+    getPlugin(),
+    commands.executeCommand('vandelay.cacheProject'),
+  ])
+  expect(getExportData(plugin)).toMatchSnapshot(this)
 })
 
-// test('cacheProject', async function() {
-//   const [plugin] = await Promise.all([
-//     getPlugin(),
-//     commands.executeCommand('vandelay.cacheProject'),
-//   ])
-//   expect(getExportData(plugin)).toMatchSnapshot(this)
-// })
+it('buildImportItems', async function() {
+  const { items } = await getImportItems()
+  expect(items).toMatchSnapshot(this)
+})
 
-// test('buildImportItems', async function() {
-//   this.timeout(5000)
-//   const { items } = await getImportItems()
-//   expect(items).toMatchSnapshot(this)
-// })
+it('insertImport - first import in file', async function() {
+  const fileRoot = path.join(root, 'src1/insert-import')
+  const { items, plugin } = await getImportItems(fileRoot, 'empty.py')
+
+  let file = 'comment-with-code-right-after.py'
+  await openFile(fileRoot, file)
+  await insertImport(plugin, items[0])
+  expect(window.activeTextEditor.document.getText()).toMatchSnapshot(this, file)
+
+  file = 'comment-with-linebreak-and-code.py'
+  await openFile(fileRoot, file)
+  await insertImport(plugin, items[0])
+  expect(window.activeTextEditor.document.getText()).toMatchSnapshot(this, file)
+
+  file = 'empty.py'
+  await openFile(fileRoot, file)
+  await insertImport(plugin, items[0])
+  expect(window.activeTextEditor.document.getText()).toMatchSnapshot(this, file)
+
+  file = 'has-code.py'
+  await openFile(fileRoot, file)
+  await insertImport(plugin, items[0])
+  expect(window.activeTextEditor.document.getText()).toMatchSnapshot(this, file)
+
+  file = 'multiline-comment.py'
+  await openFile(fileRoot, file)
+  await insertImport(plugin, items[0])
+  expect(window.activeTextEditor.document.getText()).toMatchSnapshot(this, file)
+
+  file = 'single-line-comment.py'
+  await openFile(fileRoot, file)
+  await insertImport(plugin, items[0])
+  expect(window.activeTextEditor.document.getText()).toMatchSnapshot(this, file)
+})
