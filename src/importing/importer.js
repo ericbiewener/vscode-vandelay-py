@@ -1,6 +1,6 @@
-const { window } = require('vscode')
+const { window, Range } = require('vscode')
 const path = require('path')
-const { parseImports } = require('../regex')
+const { commentRegex, parseImports } = require('../regex')
 const { getImportPosition } = require('./getImportPosition')
 
 function buildImportItems(plugin, exportData) {
@@ -66,44 +66,74 @@ function insertImport(plugin, importSelection) {
     fileText
   )
 
-  if (
-    isPackageImport &&
-    !importPosition.isFirstImport &&
-    !importPosition.indexModifier
-  ) {
-    window.showErrorMessage(
-      "Can't import entire package when parts of the package are already being imported."
-    )
-    return
+  // Make sure we aren't importing a full package when it already has a partial import, or vice versa
+  if (!importPosition.indexModifier && !importPosition.isFirstImport) {
+    if (isPackageImport) {
+      if (importPosition.match.imports) {
+        // partial imports exist
+        window.showErrorMessage(
+          'Can\'t import entire package when parts of the package are already being imported.'
+        )
+      }
+      return
+    } else if (!importPosition.match.imports) {
+      // partial imports don't exist
+      window.showErrorMessage(
+        'Can\'t import part of a package when the entire package is already being imported.'
+      )
+      return
+    }
   }
 
   const lineImports = getNewLineImports(importPosition, exportName)
   if (!lineImports) return
-  let newLine = getNewLine(plugin, importPath, lineImports)
+  let newLine = isPackageImport
+    ? `import ${exportName}`
+    : getNewLine(plugin, importPath, lineImports)
 
   // Import groups
 
   const { indexModifier } = importPosition
   // If indexModifier is 0, we're adding to a pre-existing line so no need to worry about groups
   if (indexModifier && plugin.importGroups) {
-    const surrounding = getSurroundingImportPaths(
+    const { before, after } = getSurroundingImportPaths(
       plugin,
       imports,
       importPosition
     )
 
-    if (surrounding.before || surrounding.after) {
-      const beforeGroup = surrounding.before
-        ? findImportPathGroup(plugin, surrounding.before.path)
+    if (before || after) {
+      const beforeGroup = before
+        ? findImportPathGroup(plugin, before.path)
         : null
-      const afterGroup = surrounding.after
-        ? findImportPathGroup(plugin, surrounding.after.path)
-        : null
+      const afterGroup = after ? findImportPathGroup(plugin, after.path) : null
       const newGroup = findImportPathGroup(plugin, importPath || exportName)
 
-      if (surrounding.before && newGroup != beforeGroup)
-        newLine = '\n' + newLine
-      if (surrounding.after && newGroup != afterGroup) newLine += '\n'
+      if (before && newGroup != beforeGroup) newLine = '\n' + newLine
+      if (after && newGroup != afterGroup) newLine += '\n'
+      // Rewrite all 3 import lines
+      const beforeLine = before
+        ? `${fileText.slice(before.start, before.end)}\n`
+        : ''
+      const afterLine = after
+        ? `\n${fileText.slice(after.start, after.end)}`
+        : ''
+      return editor.edit(builder => {
+        const beforeMatch =
+          before || plugin.utils.getLastInitialComment(fileText, commentRegex)
+
+        builder.replace(
+          new Range(
+            // If !before but beforeMatch exists, then beforeMatch is the comment match.
+            // Use beforeMatch.end + 1 so that we don't overwrite the comment
+            editor.document.positionAt(
+              before ? beforeMatch.start : beforeMatch ? beforeMatch.end + 1 : 0
+            ),
+            editor.document.positionAt(after ? after.end : before.end)
+          ),
+          `${beforeLine}${newLine}${afterLine}`
+        )
+      })
     }
   }
 
@@ -122,16 +152,15 @@ function findImportPathGroup(plugin, importPath) {
 
 function getSurroundingImportPaths(plugin, imports, importPosition) {
   const { match, indexModifier } = importPosition
-  const matchIndex = imports.indexOf(match) + indexModifier
-  const before = imports[matchIndex]
-  const after = imports[matchIndex + 1]
-  const lineBreakExists = before && after && before.end !== after.start - 1
+  const matchIndex = imports.indexOf(match)
+  const before = imports[matchIndex - (indexModifier > 0 ? 0 : 1)]
+  const after = imports[matchIndex + (indexModifier > 0 ? 1 : 0)]
 
   // If a line break exists, then either before or after should be null depending on whether
   // the import is being inserted directly after `before` or directly before `after`
   return {
-    before: lineBreakExists && indexModifier < 0 ? null : before,
-    after: lineBreakExists && indexModifier > 0 ? null : after,
+    before: before,
+    after: after,
   }
 }
 
@@ -146,7 +175,8 @@ function getNewLineImports(importPosition, exportName) {
 function getNewLine(plugin, importPath, imports) {
   const { maxImportLineLength, multilineImportParentheses: useParens } = plugin
 
-  imports.sort()
+  const sensitivity = { sensitivity: 'base'}
+  imports.sort((a, b) => a.localeCompare(b, undefined, sensitivity))
 
   const newLineStart = 'from ' + importPath + ' import '
   const newLineEnd = imports.join(', ')

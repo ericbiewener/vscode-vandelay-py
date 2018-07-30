@@ -18,8 +18,6 @@ function getImportPosition(plugin, importPath, isExtraImport, imports, text) {
     }
   }
 
-  // Imports exist, find correct sort order
-
   // First look for an exact match. This is done outside the main sorting loop because we don't care
   // where the exact match is located if it exists.
   const exactMatch = imports.find(i => i.path === importPath)
@@ -46,6 +44,9 @@ function getImportPosition(plugin, importPath, isExtraImport, imports, text) {
         indexModifier: -1,
       }
     }
+
+    // Imports without a group get sorted to the top
+    if (importPos != null && lineImportPos == null) continue
 
     // Package check
     const lineIsPackage = isPathPackage(plugin, importData.path)

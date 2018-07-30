@@ -2,9 +2,9 @@ const path = require('path')
 const jest = require('jest-snapshot')
 const expect = require('expect')
 
-let initialized;
-let snapshotState;
-let matcher;
+let initialized
+let snapshotState
+let matcher
 
 function toMatchSnapshot(received, { test }, currentTestName) {
   if (!initialized) {
@@ -34,7 +34,7 @@ function toMatchSnapshot(received, { test }, currentTestName) {
     snapshotState,
     currentTestName,
   })
-  
+
   const result = matcher(received)
 
   return { result, snapshotState }
@@ -42,8 +42,15 @@ function toMatchSnapshot(received, { test }, currentTestName) {
 
 expect.extend({
   toMatchSnapshot(received, context, title) {
-    const currentTestName = `${context.test.title}${title ? ` - ${title}` : ''}`
-    const { result, snapshotState } = toMatchSnapshot(received, context, currentTestName)
+    const { parent } = context.test
+    let currentTestName = parent && parent.title ? `${parent.title} | ` : ''
+    currentTestName += context.test.title
+    if (title) currentTestName += ` - ${title}`
+    const { result, snapshotState } = toMatchSnapshot(
+      received,
+      context,
+      currentTestName
+    )
 
     if (!result.pass) {
       console.log(result.report())

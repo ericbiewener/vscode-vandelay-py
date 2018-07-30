@@ -4,7 +4,7 @@ const src1 = path.join(__dirname, 'src1')
 const src2 = path.join(__dirname, 'src2')
 
 module.exports = {
-  maxImportLineLength: 120,
+  maxImportLineLength: 80,
   includePaths: [
     src1,
     src2,
