@@ -110,7 +110,7 @@ describe('insertImort', () => {
     expect(originalResult).toMatchSnapshot(context, 'original order')
 
     // eslint-disable-next-line no-unused-vars
-    for (const i of _.range(100)) {
+    for (const i of _.range(10)) {
       await reopen()
       const newArray = _.shuffle(importArgs)
       const newResult = await insert(newArray)
