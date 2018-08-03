@@ -27,16 +27,6 @@ const openFile = (...fileParts) =>
     )
   )
 
-const getImportItems = async (...fileParts) => {
-  const [plugin] = await Promise.all([getPlugin(), openFile(...fileParts)])
-  const data = getExportData(plugin)
-  data['src2/file1.py'].cached = Date.now()
-  return {
-    items: plugin._test.getImportItems(plugin, data, buildImportItems),
-    plugin,
-  }
-}
-
 it('cacheProject', async function() {
   const [plugin] = await Promise.all([
     getPlugin(),
@@ -46,7 +36,10 @@ it('cacheProject', async function() {
 })
 
 it('buildImportItems', async function() {
-  const { items } = await getImportItems()
+  const [plugin] = await Promise.all([getPlugin(), openFile()])
+  const data = getExportData(plugin)
+  data['src2/file1.py'].cached = Date.now()
+  const items = plugin._test.getImportItems(plugin, data, buildImportItems);
   expect(items).toMatchSnapshot(this)
 })
 
@@ -159,7 +152,7 @@ describe('insertImort', () => {
   it('insertImport - import package when partial import already exists', async function() {
     const [plugin] = await Promise.all([
       getPlugin(),
-      openFile(path.join(root, 'src1/insert-import/empty.py')),
+      openFile(root, 'src1/insert-import/empty.py'),
     ])
 
     await insertImport(plugin, {
@@ -181,7 +174,7 @@ describe('insertImort', () => {
   it('insertImport - import partial when full package import already exists', async function() {
     const [plugin] = await Promise.all([
       getPlugin(),
-      openFile(path.join(root, 'src1/insert-import/empty.py')),
+      openFile(root, 'src1/insert-import/empty.py'),
     ])
 
     await insertImport(plugin, {
