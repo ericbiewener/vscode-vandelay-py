@@ -39,7 +39,7 @@ it('buildImportItems', async function() {
   const [plugin] = await Promise.all([getPlugin(), openFile()])
   const data = getExportData(plugin)
   data['src2/file1.py'].cached = Date.now()
-  const items = plugin._test.getImportItems(plugin, data, buildImportItems);
+  const items = plugin._test.getImportItems(plugin, data, buildImportItems)
   expect(items).toMatchSnapshot(this)
 })
 

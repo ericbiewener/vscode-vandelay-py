@@ -72,14 +72,14 @@ function insertImport(plugin, importSelection) {
       if (importPosition.match.imports) {
         // partial imports exist
         window.showErrorMessage(
-          'Can\'t import entire package when parts of the package are already being imported.'
+          "Can't import entire package when parts of the package are already being imported."
         )
       }
       return
     } else if (!importPosition.match.imports) {
       // partial imports don't exist
       window.showErrorMessage(
-        'Can\'t import part of a package when the entire package is already being imported.'
+        "Can't import part of a package when the entire package is already being imported."
       )
       return
     }
@@ -175,7 +175,7 @@ function getNewLineImports(importPosition, exportName) {
 function getNewLine(plugin, importPath, imports) {
   const { maxImportLineLength, multilineImportParentheses: useParens } = plugin
 
-  const sensitivity = { sensitivity: 'base'}
+  const sensitivity = { sensitivity: 'base' }
   imports.sort((a, b) => a.localeCompare(b, undefined, sensitivity))
 
   const newLineStart = 'from ' + importPath + ' import '
