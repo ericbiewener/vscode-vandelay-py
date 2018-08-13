@@ -14,6 +14,7 @@ function buildImportItems(plugin, exportData) {
     const absImportPath = data.isExtraImport
       ? importPath
       : path.join(projectRoot, importPath)
+    if (absImportPath === activeFilepath) continue
     if (
       shouldIncludeImport &&
       !shouldIncludeImport(absImportPath, activeFilepath)

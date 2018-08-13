@@ -101,36 +101,6 @@ Array [
     "label": "package5_file1_3",
   },
   Object {
-    "description": "src1.file1",
-    "isExtraImport": undefined,
-    "label": "Class_file1_1",
-  },
-  Object {
-    "description": "src1.file1",
-    "isExtraImport": undefined,
-    "label": "Class_file1_2",
-  },
-  Object {
-    "description": "src1.file1",
-    "isExtraImport": undefined,
-    "label": "fn_file1_1",
-  },
-  Object {
-    "description": "src1.file1",
-    "isExtraImport": undefined,
-    "label": "fn_file1_2",
-  },
-  Object {
-    "description": "src1.file1",
-    "isExtraImport": undefined,
-    "label": "CONSTANT_FILE1_1",
-  },
-  Object {
-    "description": "src1.file1",
-    "isExtraImport": undefined,
-    "label": "CONSTANT_FILE1_2",
-  },
-  Object {
     "description": "src1.file2",
     "isExtraImport": undefined,
     "label": "Class_file2_1",
