@@ -31,25 +31,37 @@ function getImportPosition(plugin, importPath, isExtraImport, imports, text) {
   const importIsAbsolute = !importPath.startsWith('.')
 
   for (const importData of imports) {
+    // Package check
+    const lineIsPackage = isPathPackage(plugin, importData.path)
+    if (lineIsPackage && !isExtraImport) continue
+
     // plugin.importOrder check
     const lineImportPos = plugin.utils.getImportOrderPosition(
       plugin.utils.strUntil(importData.path, '.')
     )
-    if (
-      (importPos == null && lineImportPos != null) ||
-      importPos < lineImportPos
-    ) {
+
+    if (importPos != null && lineImportPos != null) {
+      if (importPos > lineImportPos) continue
+      return {
+        match: importData,
+        indexModifier:
+          importPos < lineImportPos || importPath < importData.path ? -1 : 1,
+      }
+    }
+
+    if (importPos != null || lineImportPos != null) {
+      // Package imports without a group get sorted to the top, non-package imports without a group
+      // get sorted to the end
+      if (
+        (isExtraImport && importPos != null) ||
+        (!isExtraImport && lineImportPos != null)
+      )
+        continue
       return {
         match: importData,
         indexModifier: -1,
       }
     }
-
-    // Imports without a group get sorted to the top
-    if (importPos != null && lineImportPos == null) continue
-
-    // Package check
-    const lineIsPackage = isPathPackage(plugin, importData.path)
 
     if (isExtraImport && (!lineIsPackage || importPath < importData.path)) {
       return { match: importData, indexModifier: -1 }

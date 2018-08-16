@@ -12,5 +12,5 @@ class Class_file2_1():
 class Class_file2_2():
   pass
 
-CONSTANT_file2_1 = 1
-CONSTANT_file2_2 = 2
+not_constant_file2_1 = 1
+CONSTANT_FILE2_1 = 2

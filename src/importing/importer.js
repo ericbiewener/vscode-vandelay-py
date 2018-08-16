@@ -174,7 +174,7 @@ function getNewLineImports(importPosition, exportName) {
 }
 
 function getNewLine(plugin, importPath, imports) {
-  const { maxImportLineLength, multilineImportParentheses: useParens } = plugin
+  const { maxImportLineLength } = plugin
 
   const sensitivity = { sensitivity: 'base' }
   imports.sort((a, b) => a.localeCompare(b, undefined, sensitivity))
@@ -189,10 +189,8 @@ function getNewLine(plugin, importPath, imports) {
     return newLineStart + newLineEnd
   }
 
-  let line = newLineStart
-  if (useParens) line += '('
+  let line = newLineStart + '('
   let fullText = ''
-  const lineEndChar = useParens ? '' : ' \\'
 
   imports.forEach((name, i) => {
     const isLast = i === imports.length - 1
@@ -201,21 +199,19 @@ function getNewLine(plugin, importPath, imports) {
     if (!isLast) newText += ','
 
     let newLength = line.length + newText.length
-    if (useParens && isLast) newLength++ // for closing parenthesis
-    if (!useParens && !isLast) newLength += 2 // for final ' \'
+    if (isLast) newLength++ // for closing parenthesis
 
     if (newLength < maxImportLineLength) {
       line += newText
     } else {
-      fullText += line + lineEndChar + '\n' + tabChar
-      line = newText.trim()
+      fullText += line + '\n'
+      line = tabChar + newText.trim()
     }
 
     if (isLast) fullText += line
   })
 
-  if (useParens) fullText += ')'
-  return fullText
+  return fullText + ')'
 }
 
 module.exports = {

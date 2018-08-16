@@ -26,16 +26,6 @@
             ]
         },
         {
-            "name": "Extension Tests",
-            "type": "extensionHost",
-            "request": "launch",
-            "runtimeExecutable": "${execPath}",
-            "args": [
-                "--extensionDevelopmentPath=${workspaceFolder}",
-                "--extensionTestsPath=${workspaceFolder}/test"
-            ]
-        }
-        {
             "name": "Tests - Single Root",
             "type": "extensionHost",
             "request": "launch",
@@ -57,6 +47,20 @@
             "env": {
                 "TEST_PROJECT": "single-root",
                 "UPDATE_SNAPSHOT": "true"
+            },
+            "args": [
+                "${workspaceFolder}/test/single-root",
+                "--extensionDevelopmentPath=${workspaceFolder}",
+                "--extensionTestsPath=${workspaceFolder}/test"
+            ]
+        },
+        {
+            "name": "Tests - FULL - Single Root",
+            "type": "extensionHost",
+            "request": "launch",
+            "runtimeExecutable": "${execPath}",
+            "env": {
+                "FULL_INSERT_TEST": "true",
             },
             "args": [
                 "${workspaceFolder}/test/single-root",

@@ -1,1 +1,1 @@
-CONSTANT_subdir_file1_1 = 1
+CONSTANT_SUBDIR_FILE1_1 = 1

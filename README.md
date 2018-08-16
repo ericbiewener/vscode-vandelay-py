@@ -71,8 +71,9 @@ An array of glob patterns and regular expressions that match filepaths which sho
 ### `importGroups: Array<Array<string>>`
 Vandelay will automatically sort import statements so package imports come before your project's
 custom imports, and it will alphabetize them by path. This configuration option allows you establish
-some custom ordering, grouping certain imports together with full line breaks if desired. For
-example:
+some custom ordering, grouping certain imports together with full line breaks if desired. Ungrouped
+packages will sort before grouped ones, while ungrouped non-package imports will sort after their
+grouped equivalents. For example:
 
 ```js
 importGroups: [
@@ -84,13 +85,15 @@ importGroups: [
 The above configuration will result in something like:
 
 ```py
-import os
+import os # ungrouped package import sorts before grouped
 
 from django.shortcuts import get_object_or_404
 from rest_framework.response import Response
 
 import src9
 import src1
+
+import src3 # ungrouped non-package import sorts after grouped
 ```
 
 ### `maxImportLineLength: number`
