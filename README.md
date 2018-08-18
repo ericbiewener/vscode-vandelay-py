@@ -67,7 +67,6 @@ An array of filepaths that Vandelay should watch for exports. This is the only r
 ### `excludePatterns: Array<string | RegExp>`
 An array of glob patterns and regular expressions that match filepaths which should be excluded from caching.
 
-# CHECK IF THIS MUST BE ARRA?Y OF ARRAY OR NOT
 ### `importGroups: Array<Array<string>>`
 Vandelay will automatically sort import statements so package imports come before your project's
 custom imports, and it will alphabetize them by path. This configuration option allows you establish
