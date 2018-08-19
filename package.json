@@ -18,7 +18,8 @@
     "Programming Languages",
     "Snippets",
     "Formatters",
-    "Other"
+    "Other",
+    "Extension Packs"
   ],
   "keywords": [
     "multi-root ready",
@@ -37,6 +38,9 @@
   },
   "activationEvents": [
     "*"
+  ],
+  "extensionDependencies": [
+    "edb.vandelay"
   ],
   "main": "./src/index.js",
   "scripts": {

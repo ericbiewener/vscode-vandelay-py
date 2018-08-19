@@ -21,6 +21,7 @@ whatever style guide your project requires for how import statements get written
 [Configuration](#configuration)). Multi-root workspaces are supported.
 
 ## Commands
+The following commands are available from the Command Palette. Feel free to set your own keyboard shortcuts.
 
 ### Cache Project Exports
 Caches all project exports in all languages that have a Vandelay configuration file (see 
