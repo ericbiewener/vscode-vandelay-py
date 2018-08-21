@@ -1,4 +1,4 @@
-<p align="center"><img src="https://raw.githubusercontent.com/ericbiewener/vscode-vandelay-py/master/artwork/logo.png" width="128" height="112" align="center" /></p>
+<p align="center"><img src="https://raw.githubusercontent.com/ericbiewener/vscode-vandelay-py/master/logo.png" width="128" height="112" align="center" /></p>
 <h1 align="center">Vandelay Python</h1>
 
 <p align="center">

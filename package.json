@@ -28,7 +28,7 @@
     "python",
     "generator"
   ],
-  "icon": "artwork/logo.png",
+  "icon": "logo.png",
   "galleryBanner": {
     "color": "#01263F",
     "theme": "dark"
@@ -37,7 +37,8 @@
     "vscode": "^1.21.0"
   },
   "activationEvents": [
-    "*"
+    "onLanguage:python",
+    "onCommand:vandelay.cacheProject"
   ],
   "extensionDependencies": [
     "edb.vandelay"
@@ -46,6 +47,8 @@
   "scripts": {
     "postinstall": "node ./node_modules/vscode/bin/install",
     "prettier": "prettier-eslint --prettier-last --write \"**/*.js\"",
+    "package": "vsce package --yarn",
+    "install": "yarn run package && code --install-extension *.vsix",
     "publish": "vsce publish --yarn"
   },
   "devDependencies": {

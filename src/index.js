@@ -14,6 +14,7 @@ async function activate() {
 
   const _test = {}
 
+  console.log('Registering Vandelay Python plugin with core extension')
   vandelay.registerPlugin({
     language: 'py',
     cacheFile,
@@ -22,6 +23,7 @@ async function activate() {
     insertImport,
     multilineImportParentheses: true,
     finalizePlugin(plugin) {
+      console.log('Vandelay Python plugin finalized')
       plugin._test = vandelay._test
       _test.plugin = plugin
     },
