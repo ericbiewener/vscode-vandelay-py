@@ -2,7 +2,7 @@
   "name": "vandelay-py",
   "displayName": "Vandelay Python",
   "description": "Automatically generate import statements for Python.",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "publisher": "edb",
   "author": "Eric Biewener",
   "license": "MIT",
