@@ -13,12 +13,22 @@
 </p>
 <br />
 
+## Table of Contents
+- [Overview](#Overview)
+- [Commands](#Commands)
+- [Importing from System & 3rd-Party Packages](#Importing-from-System--3rd-Party-Packages)
+- [How to Use](#How-to-Use)
+- [Configuration](#configuration-vandelay-pyjs))
+- [Multi-Root](#Multi-Root)
+- [Example Configuration File](#Example-Configuration-File)
+- [Settings](#Settings)
+
 ## Overview
 <a href="https://www.youtube.com/watch?v=W4AN8Eb2LL0&t=2m10s" target="_blank"><img src="https://raw.githubusercontent.com/ericbiewener/vscode-vandelay/master/artwork/video.jpg" alt="He's an importer exporter" width="240" align="right" /></a>
 Importing code is annoying and the current VS Code tooling around it isn't good enough.
 This plugin keeps track of all available imports and allows you to quickly import them following
 whatever style guide your project requires for how import statements get written (see
-[Configuration](#configuration)). Multi-root workspaces are supported.
+[Configuration](#configuration)). Multi-root workspaces are supported ([documentation](#multi-root)).
 
 ## Commands
 The following commands are available from the Command Palette. Feel free to set your own keyboard shortcuts.
@@ -37,7 +47,7 @@ Select an import from your project.
 A shortcut to automatically import the word under the carat. If more than one import matching the
 active word are found, you'll be asked to choose.
 
-## Importing from system & 3rd-party packages
+## Importing from System & 3rd-Party Packages
 Rather than try to do any kind of wizardry like hooking into your virtual environment, Vandelay JS
 simply tracks the ones you use. This means you'll need to write the import statement yourself the
 very first time you use an import from an external package, but the plugin will remember it after
@@ -125,6 +135,13 @@ shouldIncludeImport: (absImportPath, activeFilepath) => (
 )
 ```
 
+## Multi-Root
+You must add a `.vandelay` directory to your workspace that contains a file named `vandelay-py.js`.
+Along with the above configuration options, you must also provide a `projectRoot` string that
+specifies the absolute path to the directory that should be considered the overall root of your
+project. This will be used for determining relative paths (these paths may always be adjusted via
+the `processImportPath` configuration option described above.
+
 ## Example Configuration File
 ```js
 const path = require('path')
@@ -156,3 +173,10 @@ module.exports = {
   )
 }
 ```
+
+## Settings
+Vandelay has one setting that may be specified in your VS Code user settings:
+
+### `autoImportSingleResult: boolean`
+Defaults to `true`. When the `Import active word` command is used, the import will be automatically
+written to the file if only a single result is found.

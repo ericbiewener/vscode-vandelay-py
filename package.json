@@ -37,8 +37,8 @@
     "vscode": "^1.21.0"
   },
   "activationEvents": [
-    "onLanguage:python",
-    "onCommand:vandelay.cacheProject"
+    "workspaceContains:vandelay-py.js",
+    "workspaceContains:.vandelay/vandelay-py.js"
   ],
   "extensionDependencies": [
     "edb.vandelay"
