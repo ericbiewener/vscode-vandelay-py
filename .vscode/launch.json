@@ -60,6 +60,7 @@
             "request": "launch",
             "runtimeExecutable": "${execPath}",
             "env": {
+                "TEST_PROJECT": "single-root",
                 "FULL_INSERT_TEST": "true",
             },
             "args": [

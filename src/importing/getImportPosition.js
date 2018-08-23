@@ -35,11 +35,11 @@ function getImportPosition(plugin, importPath, isExtraImport, imports, text) {
     const lineIsPackage = isPathPackage(plugin, importData.path)
     if (lineIsPackage && !isExtraImport) continue
 
-    // plugin.importOrder check
     const lineImportPos = plugin.utils.getImportOrderPosition(
       plugin.utils.strUntil(importData.path, '.')
     )
 
+    // Both have import orders
     if (importPos != null && lineImportPos != null) {
       if (importPos > lineImportPos) continue
       return {
@@ -49,6 +49,14 @@ function getImportPosition(plugin, importPath, isExtraImport, imports, text) {
       }
     }
 
+    // One is a package and the other isn't
+    if (isExtraImport && !lineIsPackage) {
+      return { match: importData, indexModifier: -1 }
+    } else if (!isExtraImport && lineIsPackage) {
+      continue
+    }
+
+    // IF one has a position and the other doesn't...
     if (importPos != null || lineImportPos != null) {
       // Package imports without a group get sorted to the top, non-package imports without a group
       // get sorted to the end
@@ -69,7 +77,8 @@ function getImportPosition(plugin, importPath, isExtraImport, imports, text) {
       continue
     }
 
-    // Absolute path check
+    // Absolute path comparison. This also handles the case where both paths are packages, causing
+    // them to get compared alphabetically.
     const lineIsAbsolute = !importData.path.startsWith('.')
     if (importIsAbsolute && (!lineIsAbsolute || importPath < importData.path)) {
       return { match: importData, indexModifier: -1 }

@@ -64,7 +64,6 @@ const insertTest = async (context, startingText, filepath) => {
   const [plugin] = await Promise.all([getPlugin(), open()])
   await replaceFileContents(startingText)
   const originalItems = getImportItems(plugin)
-
   const originalResult = await insertItems(plugin, originalItems)
   expect(originalResult).toMatchSnapshot(context, 'original order')
 

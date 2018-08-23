@@ -91,7 +91,7 @@ it('import - processImportPath', async function() {
   })
 })
 
-it.only('import - shouldIncludeImport', async function() {
+it('import - shouldIncludeImport', async function() {
   await configInsertTest(this, {
     shouldIncludeImport: absImportPath => absImportPath.includes('src2'),
   })
