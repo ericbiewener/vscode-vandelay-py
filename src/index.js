@@ -1,4 +1,5 @@
-const { extensions, window } = require('vscode')
+const { commands, extensions, window } = require('vscode')
+const semver = require('semver-compare')
 const { cacheFile, processCachedData } = require('./cacher')
 const { buildImportItems, insertImport } = require('./importing/importer')
 
@@ -11,6 +12,16 @@ async function activate() {
     )
     return
   }
+  if (semver(ext.packageJSON.version, '1.0.1') < 0) {
+    window.showErrorMessage(
+      'Your core Vandelay package needs to be updated. Vandelay Python will not work until you update.'
+    )
+    await commands.executeCommand(
+      'workbench.extensions.action.listOutdatedExtensions'
+    )
+    return
+  }
+
   const vandelay = await ext.activate()
 
   const _test = {}
