@@ -18,8 +18,8 @@
 - [Commands](#commands)
 - [Importing from System & 3rd-Party Packages](#importing-from-system--3rd-party-packages)
 - [How to Use](#how-to-use)
-- [Configuration](#configuration-vandelay-pyjs))
-- [Multi-Root](#Multi-Root)
+- [Configuration](#configuration-vandelay-pyjs)
+- [Multi-Root Workspace](#multi-root-workspace)
 - [Example Configuration File](#example-configuration-file)
 - [Settings](#settings)
 
@@ -135,7 +135,7 @@ shouldIncludeImport: (absImportPath, activeFilepath) => (
 )
 ```
 
-## Multi-Root
+## Multi-Root Workspace
 You must add a `.vandelay` directory to your workspace that contains a file named `vandelay-py.js`.
 Along with the above configuration options, you must also provide a `projectRoot` string that
 specifies the absolute path to the directory that should be considered the overall root of your
