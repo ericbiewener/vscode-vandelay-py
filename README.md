@@ -59,8 +59,7 @@ options demonstrate, this allows the plugin to be fully customized to your proje
 
 ## Configuration (vandelay-py.js)
 You must create a file named `vandelay-py.js` at the root of your project. If using a multi-root
-workspace, set the `vandelay.configLocation` workspace setting to the **_directory_** containing the
-`vandelay-py.js` file.
+workspace, see [those instructions](#multi-root-workspace).
 
 #### *Any time you make changes to this file, you must reload the window.*
 
