@@ -28,7 +28,7 @@
 Importing code is annoying and the current VS Code tooling around it isn't good enough.
 This plugin keeps track of all available imports and allows you to quickly import them following
 whatever style guide your project requires for how import statements get written (see
-[Configuration](#configuration)). Multi-root workspaces are supported ([documentation](#multi-root)).
+[Configuration](#configuration-vandelay-pyjs)). Multi-root workspaces are supported ([documentation](#multi-root-workspace)).
 
 ## Commands
 The following commands are available from the Command Palette. Feel free to set your own keyboard shortcuts.
