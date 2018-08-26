@@ -14,14 +14,14 @@
 <br />
 
 ## Table of Contents
-- [Overview](#Overview)
-- [Commands](#Commands)
-- [Importing from System & 3rd-Party Packages](#Importing-from-System--3rd-Party-Packages)
-- [How to Use](#How-to-Use)
+- [Overview](#overview)
+- [Commands](#commands)
+- [Importing from System & 3rd-Party Packages](#importing-from-system--3rd-party-packages)
+- [How to Use](#how-to-use)
 - [Configuration](#configuration-vandelay-pyjs))
 - [Multi-Root](#Multi-Root)
-- [Example Configuration File](#Example-Configuration-File)
-- [Settings](#Settings)
+- [Example Configuration File](#example-configuration-file)
+- [Settings](#settings)
 
 ## Overview
 <a href="https://www.youtube.com/watch?v=W4AN8Eb2LL0&t=2m10s" target="_blank"><img src="https://raw.githubusercontent.com/ericbiewener/vscode-vandelay/master/artwork/video.jpg" alt="He's an importer exporter" width="240" align="right" /></a>
