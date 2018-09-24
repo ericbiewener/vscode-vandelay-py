@@ -68,8 +68,16 @@ should track your project's Python imports. The lack of a `vandelay-py.js` file 
 project will simply cause the plugin not to run.
 
 The configuration file must be written in JavaScript and export an object (`module.exports = { ...
-}` syntax) containing the desired configuration options. See 
-[this example configuration file](#example configuration file).
+}` syntax) containing the desired configuration options. This file may be as simple as something like:
+
+```js
+const path = require('path')
+module.exports = {
+  includePaths: [path.join(__dirname, 'src')]
+}
+```
+
+See [this sample configuration file](#example-configuration-file) for a more complex example.
 
 ### `includePaths: Array<string>`
 An array of filepaths that Vandelay should watch for exports. This is the only required configuration option.
@@ -145,9 +153,8 @@ the `processImportPath` configuration option described above.
 ```js
 const path = require('path')
 
-const root = '/Users/foo/my-project'
-const src1 = path.join(root, 'src1')
-const src2 = path.join(root, 'src2')
+const src1 = path.join(__dirname, 'src1')
+const src2 = path.join(__dirname, 'src2')
 
 module.exports = {
   includePaths: [src1, src2, src3],
