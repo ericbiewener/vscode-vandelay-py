@@ -34,6 +34,7 @@ async function activate() {
     buildImportItems,
     insertImport,
     multilineImportParentheses: true,
+    undefinedVariableCodes: ['F821'],
     finalizePlugin(plugin) {
       console.log('Vandelay Python: finalized', plugin)
       plugin._test = vandelay._test
