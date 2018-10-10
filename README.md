@@ -48,9 +48,17 @@ A shortcut to automatically import the word under the carat. If more than one im
 active word are found, you'll be asked to choose.
 
 ### Import undefined variables
-Vandelay will attempt to find imports for all undefined variables in the active file. Like the
-"Import active word" command, if only a single possible import is found for a given variable, it
-will automatically be imported. Otherwise, you will need to choose the correct one.
+Vandelay will attempt to find imports for all undefined variables reported by the linter for the
+active file. Like the "Import active word" command, if only a single possible import is found for a
+given variable, it will automatically be imported. Otherwise, you will need to choose the correct
+one.
+
+**Requires Flake8 linter.** Open a github issue to request support for other linters.
+
+### Remove Unused Imports
+Vandelay will remove all unused imports reported by the linter.
+
+**Requires Flake8 linter.** Open a github issue to request support for other linters.
 
 ## Importing from System & 3rd-Party Packages
 Rather than try to do any kind of wizardry like hooking into your virtual environment, Vandelay JS

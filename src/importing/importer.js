@@ -217,4 +217,5 @@ function getNewLine(plugin, importPath, imports) {
 module.exports = {
   buildImportItems,
   insertImport,
+  getNewLine,
 }

@@ -2,8 +2,9 @@ const { commands, extensions, window } = require('vscode')
 const semver = require('semver-compare')
 const { cacheFile, processCachedData } = require('./cacher')
 const { buildImportItems, insertImport } = require('./importing/importer')
+const { removeUnusedImports } = require('./removeUnusedImports')
 
-async function activate() {
+async function activate(context) {
   console.log('Vandelay Python: Activating')
   const ext = extensions.getExtension('edb.vandelay')
   if (!ext) {
@@ -24,6 +25,7 @@ async function activate() {
 
   const vandelay = await ext.activate()
 
+  let plugin
   const _test = {}
 
   console.log('Vandelay Python: registerPlugin')
@@ -33,9 +35,19 @@ async function activate() {
     processCachedData,
     buildImportItems,
     insertImport,
+    removeUnusedImports,
     multilineImportParentheses: true,
     undefinedVariableCodes: ['F821'],
-    finalizePlugin(plugin) {
+    context,
+    newVersionAlert: {
+      name: 'Vandelay Python',
+      changelogUrl:
+        'https://github.com/ericbiewener/vscode-vandelay-py/blob/master/CHANGELOG.md',
+      extensionIdentifier: 'edb.vandelay-py',
+      suppressAlert: true,
+    },
+    finalizePlugin(finalPlugin) {
+      plugin = finalPlugin
       console.log('Vandelay Python: finalized', plugin)
       plugin._test = vandelay._test
       _test.plugin = plugin

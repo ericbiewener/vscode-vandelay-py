@@ -42,21 +42,9 @@ function parseImports(text) {
 }
 
 const commentRegex = /^(?:[ \t]*#|[ \t]*"""[^]*?""").*/gm
-/*
-# I'm a comment
-def foo():
-    pass
-
-"""asdfasdfsad"""
-
-"""
-asdfasfs
-"""
-
-asdfasdf
-*/
 
 module.exports = {
   parseImports,
   commentRegex,
+  importRegex,
 }
