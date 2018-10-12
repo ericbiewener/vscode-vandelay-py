@@ -16,7 +16,7 @@ async function removeUnusedImports(plugin) {
     const changes = {}
 
     for (const diagnostic of diagnostics[filepath]) {
-      // If importing entire package
+      // If importing entire package, remove whole line
       if (
         importRegex.entirePackage.test(
           document.lineAt(diagnostic.range.start.line)
@@ -26,7 +26,6 @@ async function removeUnusedImports(plugin) {
         continue
       }
 
-      // REGEX SEARCH BACKWARDS
       const offset = document.offsetAt(diagnostic.range.start)
       const importMatch = fileImports.find(
         i => i.start <= offset && i.end >= offset
@@ -49,36 +48,27 @@ async function removeUnusedImports(plugin) {
 
     const orderedChanges = _.sortBy(changes, c => -c.match.start)
 
+    // We make changes to a string outside of the edit builder so that we don't have to worry about
+    // overlapping edit ranges
+    const oldTextEnd = orderedChanges[0].match.end + 1
+    let newText = fullText.slice(0, oldTextEnd)
+
+    for (const change of orderedChanges) {
+      const { imports, match } = change
+      const newLine = imports.length
+        ? getNewLine(plugin, match.path, imports)
+        : ''
+
+      let { end } = match
+      if (!newLine) end += newText[end + 1] === '\n' ? 2 : 1
+      newText = newText.slice(0, match.start) + newLine + newText.slice(end)
+    }
+
     await editor.edit(builder => {
-      for (const change of orderedChanges) {
-        const { imports, match } = change
-        const newLine = imports.length
-          ? getNewLine(plugin, match.path, imports)
-          : ''
-
-        console.info(
-          document.getText()[match.end + 1] !== '\n',
-          document.getText()[match.end + 1] !== '\n'
-        )
-
-        builder.replace(
-          new Range(
-            // Delete previous \n if newLine is empty
-            document.positionAt(newLine ? match.start : match.start - 1),
-            // Delete following \n if newLine is empty and there are two \n\n following it, or if
-            // we're at the start of the file
-            document.positionAt(
-              match.start &&
-              (newLine || document.getText()[match.end + 1] !== '\n')
-                ? match.end
-                : match.start
-                  ? match.end + 1
-                  : match.end + 2
-            )
-          ),
-          newLine
-        )
-      }
+      builder.replace(
+        new Range(document.positionAt(0), document.positionAt(oldTextEnd)),
+        newText
+      )
     })
 
     await document.save()
