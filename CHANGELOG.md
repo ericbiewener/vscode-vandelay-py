@@ -1,8 +1,5 @@
 ### 1.1.1
-- Version bump
-- Update eslint config
-- Fix unused import new line adjustments
-- Comments
+- Fix bug in "Remove Unused Imports" command
 
 ### 1.1.0
 - New feature: "Import Undefined Variables" command
