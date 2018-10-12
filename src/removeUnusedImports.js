@@ -50,8 +50,8 @@ async function removeUnusedImports(plugin) {
 
     // We make changes to a string outside of the edit builder so that we don't have to worry about
     // overlapping edit ranges
-    const oldTextEnd = orderedChanges[0].match.end + 1
-    let newText = fullText.slice(0, oldTextEnd)
+    const oldTextEnd = orderedChanges[0].match.end + 1 // +1 in case we need to remove the following \n
+    let newText = fullText.slice(0, oldTextEnd) // could just do this on the fullText
 
     for (const change of orderedChanges) {
       const { imports, match } = change
