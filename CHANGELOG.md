@@ -1,3 +1,7 @@
+### 1.1.2
+- Changelog (origin/master)
+- Fix for new diagnostic API
+
 ### 1.1.1
 - Fix bug in "Remove Unused Imports" command
 
