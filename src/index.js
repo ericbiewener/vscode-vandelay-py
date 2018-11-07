@@ -3,6 +3,7 @@ const semver = require('semver-compare')
 const { cacheFile, processCachedData } = require('./cacher')
 const { buildImportItems, insertImport } = require('./importing/importer')
 const { removeUnusedImports } = require('./removeUnusedImports')
+const { shouldIncludeDisgnostic } = require('./utils')
 
 async function activate(context) {
   console.log('Vandelay Python: Activating')
@@ -37,7 +38,7 @@ async function activate(context) {
     insertImport,
     removeUnusedImports,
     multilineImportParentheses: true,
-    undefinedVariableCodes: ['F821'],
+    shouldIncludeDisgnostic,
     context,
     newVersionAlert: {
       name: 'Vandelay Python',

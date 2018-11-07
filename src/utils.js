@@ -7,6 +7,11 @@ function isPathPackage(plugin, importPath) {
   })
 }
 
+function shouldIncludeDisgnostic({ code }) {
+  return code === 'F821'
+}
+
 module.exports = {
   isPathPackage,
+  shouldIncludeDisgnostic,
 }
