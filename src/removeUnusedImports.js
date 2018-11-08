@@ -4,7 +4,7 @@ const { getNewLine } = require('./importing/importer')
 const { importRegex, parseImports } = require('./regex')
 
 async function removeUnusedImports(plugin) {
-  const diagnostics = plugin.utils.getDiagnosticsForCodes(['F401'])
+  const diagnostics = plugin.utils.getDiagnostics(d => d.code === 'F401')
   for (const filepath in diagnostics) {
     const editor = await window.showTextDocument(Uri.file(filepath), {
       preserveFocus: true,
