@@ -60,6 +60,9 @@ Vandelay will remove all unused imports reported by the linter.
 
 **Requires Flake8 linter.** Open a github issue to request support for other linters.
 
+### Fix Imports
+Combination of the previous two commands. Imports all undefined variables and removes unused imports.
+
 ## Importing from System & 3rd-Party Packages
 Rather than try to do any kind of wizardry like hooking into your virtual environment, Vandelay JS
 simply tracks the ones you use. This means you'll need to write the import statement yourself the
