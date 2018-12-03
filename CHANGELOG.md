@@ -1,3 +1,7 @@
+### 1.2.0
+- Fix removing unused vars for new diagnostics API (origin/master)
+- Update README
+
 ### 1.1.2
 - Changelog (origin/master)
 - Fix for new diagnostic API
